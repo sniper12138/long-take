@@ -2,7 +2,7 @@
   <div class="longTake" ref="longTake" @touchstart="touch()">
     <!-- <div>{{ devicint }}</div> -->
     <div class="loading" v-show="loadingShow">
-      <p>载入中：{{ loading }}%</p>
+      <p>载入：{{ loading }}%</p>
     </div>
   </div>
 </template>
