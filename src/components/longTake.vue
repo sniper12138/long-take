@@ -390,7 +390,7 @@ export default {
     },
     getDeviceMotionEvent() {
       return new Promise((resolve, reject) => {
-        DeviceMotionEvent.requestPermission()
+        window.DeviceMotionEvent.requestPermission()
           .then((res) => {
             console.log(res);
             if (res == "granted") {
