@@ -368,14 +368,31 @@ export default {
           typeof DeviceMotionEvent !== "undefined" &&
           typeof DeviceMotionEvent.requestPermission === "function"
         ) {
-          const res = await this.getDeviceMotionEvent();
-          if (res) {
-            window.addEventListener(
-              "deviceorientation",
-              this.updateGravity,
-              false
-            );
-          }
+          // const res = await this.getDeviceMotionEvent();
+          // if (res) {
+          //   window.addEventListener(
+          //     "deviceorientation",
+          //     this.updateGravity,
+          //     false
+          //   );
+          // }
+          window.DeviceMotionEvent.requestPermission()
+          .then((res) => {
+            console.log(res);
+            if (res == "granted") {
+              resolve(res);
+            } else {
+              reject(res);
+              alert("你拒绝了授权");
+              return false;
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err);
+            alert("操作错误");
+            return false;
+          });
         } else {
           window.addEventListener(
             "deviceorientation",
