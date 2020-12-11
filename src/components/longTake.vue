@@ -325,26 +325,11 @@ export default {
       loading: 0,
       loadingShow: true,
       devicint: {},
+      isTouch: false
     };
   },
   mounted() {
     this.initStage();
-    window.addEventListener(
-      "deviceorientation",
-      function (event) {
-        var absolute = event.absolute;
-        var alpha = event.alpha;
-        var beta = event.beta;
-        var gamma = event.gamma;
-        this.devicint = {
-          absolute: absolute,
-          alpha: alpha,
-          beta: beta,
-          gamma: gamma,
-        };
-      },
-      false
-    );
   },
   watch: {
     progress(val) {
@@ -367,21 +352,45 @@ export default {
       });
     },
   },
-  // destroyed() {
-  //   this.clearIntervalItem();
-  // },
+  destroyed() {
+    // this.clearIntervalItem();
+    window.removeEventListener('deviceorientation', this.updateGravity. false)
+  },
   methods: {
     async touch() {
+      if(this.isTouch){
+        return false
+      }
+      console.log(1111)
+      this.isTouch = true;
       if (browser.versions.iPhone || browser.versions.iPad) {
         var str = navigator.userAgent.toLowerCase();
         var ver = str
           .match(/cpu iphone os (.*?) like mac os/)[1]
           .replace(/_/g, ".");
-        console.log(ver)
-        const res = await this.getDeviceMotionEvent()
-        if(res){
+        try {
+          if (ver.split(".")[0] >= "13") {
+            const res = await this.getDeviceMotionEvent();
+            if (res) {
+              window.addEventListener(
+                "deviceorientation",
+                this.updateGravity,
+                false
+              );
+            }
+          } else {
+            window.addEventListener(
+              "deviceorientation",
+              this.updateGravity,
+              false
+            );
+          }
+        } catch (error) {
+          console.log(error);
         }
       } else {
+        console.log(2222)
+        window.addEventListener("deviceorientation", this.updateGravity, false);
       }
     },
     getDeviceMotionEvent() {
@@ -392,7 +401,7 @@ export default {
             if (res == "granted") {
               resolve(res);
             } else {
-              reject(res)
+              reject(res);
               alert("你拒绝了授权");
               return false;
             }
@@ -404,6 +413,19 @@ export default {
             return false;
           });
       });
+    },
+    updateGravity(event) {
+      var absolute = event.absolute;
+      var alpha = event.alpha;
+      var beta = event.beta;
+      var gamma = event.gamma;
+      this.devicint = {
+        absolute: absolute,
+        alpha: alpha,
+        beta: beta,
+        gamma: gamma,
+      };
+      console.log(this.devicint)
     },
     initStage() {
       this.stage = new PIXI.Application({
