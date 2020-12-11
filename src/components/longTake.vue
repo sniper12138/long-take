@@ -325,7 +325,7 @@ export default {
       loading: 0,
       loadingShow: true,
       devicint: {},
-      isTouch: false
+      isTouch: false,
     };
   },
   mounted() {
@@ -354,42 +354,37 @@ export default {
   },
   destroyed() {
     // this.clearIntervalItem();
-    window.removeEventListener('deviceorientation', this.updateGravity. false)
+    window.removeEventListener("deviceorientation", this.updateGravity.false);
   },
   methods: {
     async touch() {
-      if(this.isTouch){
-        return false
+      if (this.isTouch) {
+        return false;
       }
-      console.log(1111)
+      console.log(1111);
       this.isTouch = true;
       if (browser.versions.iPhone || browser.versions.iPad) {
-        var str = navigator.userAgent.toLowerCase();
-        var ver = str
-          .match(/cpu iphone os (.*?) like mac os/)[1]
-          .replace(/_/g, ".");
-        try {
-          if (ver.split(".")[0] >= "13") {
-            const res = await this.getDeviceMotionEvent();
-            if (res) {
-              window.addEventListener(
-                "deviceorientation",
-                this.updateGravity,
-                false
-              );
-            }
-          } else {
+        if (
+          typeof DeviceMotionEvent !== "undefined" &&
+          typeof DeviceMotionEvent.requestPermission === "function"
+        ) {
+          const res = await this.getDeviceMotionEvent();
+          if (res) {
             window.addEventListener(
               "deviceorientation",
               this.updateGravity,
               false
             );
           }
-        } catch (error) {
-          console.log(error);
+        } else {
+          window.addEventListener(
+            "deviceorientation",
+            this.updateGravity,
+            false
+          );
         }
       } else {
-        console.log(2222)
+        console.log(2222);
         window.addEventListener("deviceorientation", this.updateGravity, false);
       }
     },
@@ -425,7 +420,7 @@ export default {
         beta: beta,
         gamma: gamma,
       };
-      console.log(this.devicint)
+      console.log(this.devicint);
     },
     initStage() {
       this.stage = new PIXI.Application({
