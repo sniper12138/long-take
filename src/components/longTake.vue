@@ -125,8 +125,15 @@ export default {
           sence: "sence-1",
           name: "cover",
           img: _this.getFrame("cover", 193),
-          width: 752,
-          height: 1080,
+          // img: {
+          //   url: require("@/assets/image/cover/cover_sprites.jpg"),
+          //   name: "cover-item-1",
+          // },
+          width: 375,
+          height: 539,
+          allWidth: 6715,
+          allHeight: 6708,
+          // 17 * 12
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
           anchorX: 0.5,
@@ -135,6 +142,7 @@ export default {
           infinite: true,
           setIntervalTime: 30,
           mode: "fitHeight",
+          isDevicint: true,
           ani: {
             duration: 0.4,
             delay: 0.1,
@@ -361,55 +369,28 @@ export default {
       if (this.isTouch) {
         return false;
       }
-      console.log(1111);
       this.isTouch = true;
       if (browser.versions.iPhone || browser.versions.iPad) {
         if (
           typeof DeviceMotionEvent !== "undefined" &&
           typeof DeviceMotionEvent.requestPermission === "function"
         ) {
-          // const res = await this.getDeviceMotionEvent();
-          // if (res) {
-          //   window.addEventListener(
-          //     "deviceorientation",
-          //     this.updateGravity,
-          //     false
-          //   );
-          // }
-          window.DeviceMotionEvent.requestPermission()
-          .then((res) => {
-            console.log(res);
-            if (res == "granted") {
-              resolve(res);
-            } else {
-              reject(res);
-              alert("你拒绝了授权");
-              return false;
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err);
-            alert("操作错误");
-            return false;
-          });
+          const res = await this.getDeviceMotionEvent();
+          if (res) {
+            this.Orienter();
+          }
         } else {
-          window.addEventListener(
-            "deviceorientation",
-            this.updateGravity,
-            false
-          );
+          this.Orienter();
         }
       } else {
-        console.log(2222);
-        window.addEventListener("deviceorientation", this.updateGravity, false);
+        this.Orienter();
       }
     },
     getDeviceMotionEvent() {
       return new Promise((resolve, reject) => {
         window.DeviceMotionEvent.requestPermission()
           .then((res) => {
-            console.log(res);
+            console.log("success", res);
             if (res == "granted") {
               resolve(res);
             } else {
@@ -419,25 +400,23 @@ export default {
             }
           })
           .catch((err) => {
-            console.log(err);
+            console.log("error", err);
             reject(err);
             alert("操作错误");
             return false;
           });
       });
     },
-    updateGravity(event) {
-      var absolute = event.absolute;
-      var alpha = event.alpha;
-      var beta = event.beta;
-      var gamma = event.gamma;
-      this.devicint = {
-        absolute: absolute,
-        alpha: alpha,
-        beta: beta,
-        gamma: gamma,
+    Orienter() {
+      const orienter = new Orienter();
+      orienter.onOrient = (obj) => {
+        let x = obj.lon < 180 ? obj.lon : obj.lon - 360;
+        let y = obj.lat;
+        // console.log(x, y)
+        this.stage.stage.x = x * 0.3 + this.clientWidth / 2;
+        this.stage.stage.y = y * 0.3 + this.clientHeight / 2;
       };
-      console.log(this.devicint);
+      orienter.on();
     },
     initStage() {
       this.stage = new PIXI.Application({
@@ -446,6 +425,10 @@ export default {
         transparent: true,
         resolution: window.devicePixelRatio,
       });
+      this.stage.stage.scale.set(1.1);
+      this.stage.stage.x = this.clientWidth / 2;
+      this.stage.stage.y = this.clientHeight / 2;
+      this.stage.stage.pivot.set(this.clientWidth / 2, this.clientHeight / 2);
       const $longTake = this.$refs.longTake;
       $longTake.appendChild(this.stage.view);
 
@@ -519,6 +502,8 @@ export default {
           setIntervalTime,
           width,
           height,
+          allWidth,
+          allHeight,
           x,
           y,
           anchorX,
@@ -554,6 +539,45 @@ export default {
             this.sprItem[`sprite${i + 1}`] = new PIXI.AnimatedSprite(frameArr);
             this.sprItem[`sprite${i + 1}`].animationSpeed = 0.7;
             this.sprItem[`sprite${i + 1}`].play();
+
+            // 雪碧图
+            // let xW = Math.floor(allWidth / width);
+            // let yH = Math.floor(allHeight / height);
+            // let xWidth = allWidth / xW;
+            // let yHeight = allHeight / yH;
+            // let Rectangle = new PIXI.Rectangle();
+            // let textures = [];
+            // for (let j = 0, jlen = yH; j < jlen; j++) {
+            //   for (let i = 0, len = xW; i < len; i++) {
+            //     let rectangle = new PIXI.Rectangle(
+            //       xWidth * i,
+            //       yHeight * j,
+            //       xWidth,
+            //       yHeight
+            //     );
+            //     textures.push(rectangle);
+            //   }
+            // }
+            // this.loader.resources[img.name].texture.frame = new PIXI.Rectangle(
+            //   0,
+            //   0,
+            //   xWidth,
+            //   yHeight
+            // );
+            // this.sprItem[`sprite${i + 1}`] = new PIXI.Sprite(
+            //   this.loader.resources[img.name].texture
+            // );
+            // this.sprItem[`sprite${i + 1}`].width = width;
+            // this.sprItem[`sprite${i + 1}`].height = height;
+            // let _i = 0;
+            // let timer = setInterval(() => {
+            //   if (_i >= textures.length - 1) {
+            //     _i = 0;
+            //   } else {
+            //     _i++;
+            //   }
+            //   this.sprItem[`sprite${i + 1}`].texture.frame = textures[_i];
+            // }, 60);
           } else {
             // 不循环
             this.sprItem[`sprite${i + 1}`] = new PIXI.Sprite(
